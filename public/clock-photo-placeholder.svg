@@ -1,0 +1,23 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(360 340) rotate(40) scale(920)">
+      <stop stop-color="#2A2A2A"/>
+      <stop offset="0.58" stop-color="#1E1E1E"/>
+      <stop offset="1" stop-color="#161616"/>
+    </radialGradient>
+    <linearGradient id="sheen" x1="150" y1="120" x2="1080" y2="1040" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FA5D19" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FA5D19" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="1200" rx="600" fill="url(#bg)"/>
+  <rect width="1200" height="1200" rx="600" fill="url(#sheen)"/>
+
+  <circle cx="760" cy="410" r="280" fill="#FA5D19" fill-opacity="0.08"/>
+  <circle cx="490" cy="760" r="320" fill="#EDEDED" fill-opacity="0.05"/>
+  <circle cx="860" cy="840" r="180" fill="#FA5D19" fill-opacity="0.06"/>
+
+  <text x="600" y="560" fill="#EDEDED" fill-opacity="0.74" text-anchor="middle" font-size="84" font-family="Arial, Helvetica, sans-serif" letter-spacing="10">YOUR</text>
+  <text x="600" y="660" fill="#FA5D19" fill-opacity="0.84" text-anchor="middle" font-size="84" font-family="Arial, Helvetica, sans-serif" letter-spacing="10">PHOTO</text>
+</svg>
