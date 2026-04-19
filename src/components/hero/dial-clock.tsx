@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import type { MotionStyle } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 
 const SECOND_LABELS = Array.from({ length: 60 }, (_, index) => index);
@@ -11,7 +10,7 @@ const HOUR_LABELS = Array.from({ length: 24 }, (_, index) => index);
 
 type DialClockProps = {
   className?: string;
-  style?: MotionStyle;
+  edgeOffset?: boolean;
 };
 
 type DialRingProps = {
@@ -82,20 +81,30 @@ function DialRing({
   );
 }
 
-export function DialClock({ className, style }: DialClockProps) {
-  // Initialize to a deterministic value to avoid SSR/CSR hydration mismatches.
-  const [nowMs, setNowMs] = useState<number>(() => 0);
+export function DialClock({ className, edgeOffset = true }: DialClockProps) {
+  // // Initialize to a deterministic value to avoid SSR/CSR hydration mismatches.
+  // const [nowMs, setNowMs] = useState<number>(() => 0);
+
+  // useEffect(() => {
+  //   // Start the update loop after mount. The first update will occur
+  //   // when the interval callback fires to avoid synchronous setState in effect.
+  //   const timerId = window.setInterval(() => {
+  //     setNowMs(Date.now());
+  //   }, 40);
+
+  //   return () => {
+  //     window.clearInterval(timerId);
+  //   };
+  // }, []);
+
+  const [nowMs, setNowMs] = useState<number>(0);
 
   useEffect(() => {
-    // Start the update loop after mount. The first update will occur
-    // when the interval callback fires to avoid synchronous setState in effect.
     const timerId = window.setInterval(() => {
       setNowMs(Date.now());
     }, 40);
 
-    return () => {
-      window.clearInterval(timerId);
-    };
+    return () => window.clearInterval(timerId);
   }, []);
 
   const { secondRotation, minuteRotation, hourRotation } = useMemo(() => {
@@ -117,13 +126,16 @@ export function DialClock({ className, style }: DialClockProps) {
   return (
     <motion.div
       className={`pointer-events-none ${positionClassName}`}
-      style={style}
       initial={{ opacity: 0, x: 80 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
       aria-hidden="true"
     >
-      <div className="relative h-[clamp(17rem,88vw,29rem)] w-[clamp(17rem,88vw,29rem)] translate-x-0 sm:h-[clamp(20rem,72vw,34rem)] sm:w-[clamp(20rem,72vw,34rem)] lg:h-[clamp(30rem,90vw,70rem)] lg:w-[clamp(30rem,90vw,70rem)] lg:translate-x-[40%]">
+      <div
+        className={`relative h-[clamp(17rem,88vw,29rem)] w-[clamp(17rem,88vw,29rem)] translate-x-0 sm:h-[clamp(20rem,72vw,34rem)] sm:w-[clamp(20rem,72vw,34rem)] lg:h-[clamp(30rem,90vw,70rem)] lg:w-[clamp(30rem,90vw,70rem)] ${
+          edgeOffset ? "lg:translate-x-[40%]" : "lg:translate-x-0"
+        }`}
+      >
         <DialRing
           labels={SECOND_LABELS}
           rotation={secondRotation}
@@ -153,11 +165,12 @@ export function DialClock({ className, style }: DialClockProps) {
 
         <div className="absolute left-1/2 top-1/2 h-[58%] w-[58%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-[#1a1a1a]">
           <Image
-            src="/clock-photo-placeholder.svg"
-            alt="Photo placeholder"
+            src="/profilePhtoo.jpeg"
+            alt="Profile photo"
             fill
             priority
-            className="object-cover"
+            className="object-cover grayscale"
+            style={{ filter: "grayscale(100%)" }}
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.28)_0%,rgba(255,255,255,0.04)_38%,transparent_70%)]" />
         </div>

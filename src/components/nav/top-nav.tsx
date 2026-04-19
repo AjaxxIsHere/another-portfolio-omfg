@@ -61,7 +61,7 @@ export default function TopNav() {
       {/* Mobile menu toggle (visible on small screens) */}
       <button
         aria-label="Open menu"
-        className="sm:hidden fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-full bg-surface/70 border-[0.5px] border-white/10 px-3 py-2 text-sm text-white/80 backdrop-blur-sm shadow-md"
+        className="sm:hidden fixed top-4 right-4 z-50 rounded-full bg-surface/70 border-[0.5px] border-white/10 px-3 py-2 text-sm text-white/80 backdrop-blur-sm shadow-md"
         onClick={() => setOpen((s) => !s)}
       >
         Menu
@@ -75,7 +75,7 @@ export default function TopNav() {
             exit={{ y: -10, opacity: 0, transition: { duration: 0.2, ease: easeOut } }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className="fixed left-0 right-0 top-4 z-40 pointer-events-none"
+            className="hidden sm:block fixed left-0 right-0 top-4 z-40 pointer-events-none"
             role="navigation"
             aria-label="Main Navigation"
           >
@@ -108,6 +108,31 @@ export default function TopNav() {
               </div>
             </div>
           </motion.nav>
+        )}
+      </AnimatePresence>
+
+      {/* Chevron indicator when nav is hidden (desktop only) */}
+      <AnimatePresence>
+        {!visible && !open && (
+          <motion.div
+            key="chevron-indicator"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.28, ease: easeOut }}
+            aria-hidden
+            className="hidden sm:block fixed top-6 left-1/2 z-40 -translate-x-1/2 pointer-events-none"
+          >
+            <motion.span
+              className="inline-flex items-center justify-center rounded-full bg-surface/40 p-2 backdrop-blur-sm border-[0.5px] border-white/8"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/72">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </motion.span>
+          </motion.div>
         )}
       </AnimatePresence>
 
