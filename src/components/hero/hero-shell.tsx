@@ -6,9 +6,11 @@ import {
   useMotionTemplate,
   useMotionValue,
   useSpring,
+  useScroll,
+  useTransform,
 } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import type { MouseEvent } from "react";
+import { useRef, type MouseEvent } from "react";
+import { useHeroCamera } from "@/components/hero/use-hero-camera";
 import { DialClock } from "@/components/hero/dial-clock";
 import {
   MilestonesSection,
@@ -69,25 +71,6 @@ const defaultMilestones: MilestoneStat[] = [
 ];
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
-const postClockSections = [
-  "leetcode",
-  "education",
-  "projects",
-  "projects-gap",
-  "work",
-  "footer",
-] as const;
-const postClockScrollSpeed = 0.0018;
- 
-const postClockFadeLead = 0.24;
-const postClockWorkLead = 0.6;
-const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-const postClockFadeInRadius = 0.45;
-
-const fadeInOnly = (progress: number, center: number, radius = postClockFadeInRadius) =>
-  clamp01((progress - (center - radius)) / radius);
-type PostClockSection = (typeof postClockSections)[number];
-type SecondarySection = "milestones" | "about" | PostClockSection;
 
 const riseIn = {
   hidden: { opacity: 0, y: 24 },
@@ -294,20 +277,16 @@ export function HeroShell({
   });
 
   const maskImage = useMotionTemplate`radial-gradient(circle 380px at ${smoothX}px ${smoothY}px, black 15%, transparent 100%)`;
-  const postClockMaxIndex = postClockSections.length - 1;
-  const stackRowHeight = 100 / (postClockSections.length + 1);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { cameraState } = useHeroCamera(scrollContainerRef);
 
-  const [activePanel, setActivePanel] = useState<0 | 1>(0);
-  const [activeSecondarySection, setActiveSecondarySection] = useState<SecondarySection>("about");
-  const [postClockProgress, setPostClockProgress] = useState(0);
-  const [hasSeenMilestones, setHasSeenMilestones] = useState(false);
-  const [hasSeenLeetCode, setHasSeenLeetCode] = useState(false);
-  const [hasSeenEducation, setHasSeenEducation] = useState(false);
-  const [hasSeenProjects, setHasSeenProjects] = useState(false);
-  const [hasSeenWork, setHasSeenWork] = useState(false);
-  const [hasSeenFooter, setHasSeenFooter] = useState(false);
-  const [isSnapping, setIsSnapping] = useState(false);
-  const settleTimeoutRef = useRef<number | null>(null);
+  // Track the native scrollbar inside the container
+  const { scrollY } = useScroll({ container: scrollContainerRef });
+
+  // Map the native scroll position to the Clock's Y position and Opacity
+  // When scroll reaches 800px, the clock is pushed entirely off screen natively!
+  const clockY = useTransform(scrollY, [0, 800], ["-50%", "-150%"]);
+  const clockOpacity = useTransform(scrollY, [0, 600], [1, 0]);
 
   const handlePointerMove = (event: MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -320,155 +299,7 @@ export function HeroShell({
     pointerY.set(-1000);
   };
 
-  useEffect(() => {
-    const onWheel = (event: WheelEvent) => {
-      const isPostClockSection =
-        activeSecondarySection !== "about" &&
-        activeSecondarySection !== "milestones";
-
-      if (!window.matchMedia("(min-width: 768px)").matches) {
-        return;
-      }
-
-      if (Math.abs(event.deltaY) < 28) {
-        return;
-      }
-
-      event.preventDefault();
-
-      if (isSnapping) {
-        return;
-      }
-
-      if (event.deltaY > 0) {
-        if (activePanel === 0) {
-          // hero -> about (first in-panel section)
-          setActivePanel(1);
-          setActiveSecondarySection("about");
-          setIsSnapping(true);
-          return;
-        }
-
-        if (activePanel === 1 && activeSecondarySection === "about") {
-          // about -> milestones
-          setActiveSecondarySection("milestones");
-          setHasSeenMilestones(true);
-          setIsSnapping(true);
-          return;
-        }
-
-        if (activePanel === 1 && activeSecondarySection === "milestones") {
-          // milestones -> leetcode (continuous downward transition)
-          setActiveSecondarySection("leetcode");
-          setPostClockProgress(0);
-          setHasSeenLeetCode(true);
-          setIsSnapping(true);
-          return;
-        }
-
-        if (activePanel === 1 && isPostClockSection) {
-          // Continuous wheel-driven progress for leetcode -> education (and future sections).
-          const nextProgress = Math.min(
-            postClockMaxIndex,
-            postClockProgress + event.deltaY * postClockScrollSpeed,
-          );
-
-          if (nextProgress !== postClockProgress) {
-            setPostClockProgress(nextProgress);
-          }
-
-          const nearestSection = postClockSections[Math.round(nextProgress)];
-          if (nearestSection !== activeSecondarySection) {
-            setActiveSecondarySection(nearestSection);
-          }
-
-          if (nextProgress > 0.02) {
-            setHasSeenEducation(true);
-          }
-          if (nextProgress > 0.92) {
-            setHasSeenProjects(true);
-          }
-          if (nextProgress > 2.84) {
-            setHasSeenWork(true);
-          }
-          if (nextProgress > 4.1) {
-            setHasSeenFooter(true);
-          }
-
-          return;
-        }
-      }
-
-      if (event.deltaY < 0) {
-        if (activePanel === 1 && isPostClockSection) {
-          const nextProgress = Math.max(
-            0,
-            postClockProgress + event.deltaY * postClockScrollSpeed,
-          );
-
-          if (nextProgress !== postClockProgress) {
-            setPostClockProgress(nextProgress);
-          }
-
-          if (nextProgress <= 0.001 && postClockProgress <= 0.001) {
-            // Exit continuous region back to milestones.
-            setActiveSecondarySection("milestones");
-            setHasSeenMilestones(true);
-            setPostClockProgress(0);
-            setIsSnapping(true);
-            return;
-          }
-
-          const nearestSection = postClockSections[Math.round(nextProgress)];
-          if (nearestSection !== activeSecondarySection) {
-            setActiveSecondarySection(nearestSection);
-          }
-
-          return;
-        }
-
-        if (activePanel === 1 && activeSecondarySection === "milestones") {
-          // milestones -> about
-          setActiveSecondarySection("about");
-          setIsSnapping(true);
-          return;
-        }
-
-        if (activePanel === 1 && activeSecondarySection === "about") {
-          // about -> hero
-          setActivePanel(0);
-          setIsSnapping(true);
-        }
-      }
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-    };
-  }, [
-    activePanel,
-    activeSecondarySection,
-    isSnapping,
-    postClockProgress,
-    postClockMaxIndex,
-  ]);
-
-  useEffect(() => {
-    if (!isSnapping) {
-      return;
-    }
-
-    settleTimeoutRef.current = window.setTimeout(() => {
-      setIsSnapping(false);
-    }, 760);
-
-    return () => {
-      if (settleTimeoutRef.current) {
-        window.clearTimeout(settleTimeoutRef.current);
-      }
-    };
-  }, [isSnapping]);
+  // camera hook handles wheel + snapping logic
 
   return (
     <div
@@ -498,209 +329,91 @@ export function HeroShell({
       <div className="hidden md:block">
         <motion.div
           className="relative flex h-screen w-[200vw]"
-          animate={{ x: activePanel === 1 ? "-100vw" : "0vw" }}
+          animate={{ x: cameraState === "hero" ? "0vw" : "-100vw" }}
           transition={{ duration: 0.78, ease: easeOut }}
         >
+          {/* PANEL 1: HERO */}
           <section className="relative h-screen w-screen">
-            <motion.main
-              className="relative mx-auto grid h-full w-full max-w-[1440px] items-center gap-10 px-10 py-16 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)] lg:px-14"
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: 0.08,
-                    delayChildren: 0.12,
-                  },
-                },
-              }}
-            >
-              <HeroTextBlock
-                name={name}
-                about={about}
-                stack={stack}
-                socials={socials}
-              />
-
-              <motion.section
-                variants={riseIn}
-                className="relative z-10 hidden h-[38rem] lg:block"
-                aria-hidden="true"
-              />
+            <motion.main className="relative mx-auto grid h-full w-full max-w-[1440px] items-center gap-10 px-10 py-16 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)] lg:px-14">
+              <HeroTextBlock name={name} about={about} stack={stack} socials={socials} />
             </motion.main>
+          </section>
 
-            <motion.p
-              className="pointer-events-none absolute bottom-9 left-10 z-20 text-xs uppercase tracking-[0.26em] text-white/45 lg:left-14"
-              animate={{ opacity: activePanel === 0 ? 1 : 0 }}
-              transition={{ duration: 0.28, ease: easeOut }}
+          {/* PANEL 2: THE DECK */}
+          <section className="relative h-screen w-screen overflow-hidden">
+            {/* SLIDESHOW SECTIONS */}
+            <AnimatePresence mode="wait">
+              {cameraState === "about" && (
+                <motion.div
+                  key="about"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0"
+                >
+                  <AboutSection reveal={true} contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
+                </motion.div>
+              )}
+
+              {cameraState === "milestones" && (
+                <motion.div
+                  key="milestones"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0"
+                >
+                  <MilestonesSection stats={milestones} reveal={true} contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
+                </motion.div>
+              )}
+
+              {/* (LeetCode is handled in the native scroll container) */}
+            </AnimatePresence>
+
+            {/* FREE VERTICAL SCROLL SECTION */}
+            {/* Unlocks the scrollbar only when cameraState is 'native-content' */}
+            <motion.div
+              ref={scrollContainerRef}
+              className={`absolute inset-0 h-full w-full ${cameraState === "native-content" ? "pointer-events-auto overflow-y-auto" : "pointer-events-none overflow-hidden"}`}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{
+                opacity: cameraState === "native-content" ? 1 : 0,
+                y: cameraState === "native-content" ? 0 : 40,
+              }}
+              transition={{ duration: 0.5, ease: easeOut }}
             >
-              Scroll to view About
-            </motion.p>
+              {/* LeetCode is back in the native scroll container! */}
+              <div className="min-h-screen">
+                <LeetCodeActivitySection reveal={cameraState === "native-content"} username="AjaxxIsHere" contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
+              </div>
+
+              <div className="min-h-screen">
+                <EducationSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+              </div>
+
+              <div className="min-h-screen pb-16">
+                <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1280px]" />
+              </div>
+
+              {/* Dynamic height! Let it flow natively. */}
+              <div className="h-auto pb-24 pt-10">
+                <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1320px]" />
+              </div>
+
+              <div className="min-h-screen flex items-end">
+                <FooterSection reveal={cameraState === "native-content"} socials={socials} contentClassName="mx-auto max-w-[1320px]" />
+              </div>
+            </motion.div>
           </section>
 
-          <section className="relative h-screen w-screen">
-            <div className="relative h-full">
-              <AnimatePresence mode="wait">
-                {activeSecondarySection === "about" ? (
-                  <motion.div
-                    key="about"
-                    className="absolute inset-0"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35, ease: easeOut }}
-                  >
-                    <AboutSection
-                      reveal={true}
-                      contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]"
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="progress-stack"
-                    className="absolute inset-0 overflow-hidden"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35, ease: easeOut }}
-                  >
-                    <motion.div
-                      className="relative"
-                      style={{ height: `${(postClockSections.length + 1) * 100}%` }}
-                      animate={{
-                        y:
-                          activeSecondarySection === "milestones"
-                            ? "0%"
-                            : `${-(1 + postClockProgress) * stackRowHeight}%`,
-                      }}
-                      transition={{ duration: 0.72, ease: easeOut }}
-                    >
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{ opacity: activeSecondarySection === "milestones" ? 1 : 0 }}
-                        transition={{ duration: 0.38, ease: easeOut }}
-                      >
-                        <MilestonesSection
-                          stats={milestones}
-                          reveal={hasSeenMilestones}
-                          contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]"
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{
-                          opacity:
-                            activeSecondarySection === "milestones"
-                              ? 0
-                              : fadeInOnly(postClockProgress + postClockFadeLead, 0),
-                        }}
-                        transition={{ duration: 0.18, ease: easeOut }}
-                      >
-                        <LeetCodeActivitySection
-                          reveal={hasSeenLeetCode}
-                          username={"AjaxxIsHere"}
-                          contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]"
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{
-                          opacity:
-                            activeSecondarySection === "milestones"
-                              ? 0
-                              : fadeInOnly(postClockProgress + postClockFadeLead, 1),
-                        }}
-                        transition={{ duration: 0.18, ease: easeOut }}
-                      >
-                        <EducationSection
-                          reveal={hasSeenEducation}
-                          contentClassName="mx-auto max-w-[1120px]"
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{
-                          opacity:
-                            activeSecondarySection === "milestones"
-                              ? 0
-                              : fadeInOnly(postClockProgress + postClockFadeLead, 2),
-                        }}
-                        transition={{ duration: 0.18, ease: easeOut }}
-                      >
-                        <PersonalProjectsSection
-                          reveal={hasSeenProjects}
-                          contentClassName="mx-auto max-w-[1280px]"
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{
-                          opacity:
-                            activeSecondarySection === "milestones"
-                              ? 0
-                              : fadeInOnly(postClockProgress + postClockFadeLead, 3, 0.5),
-                        }}
-                        transition={{ duration: 0.18, ease: easeOut }}
-                      >
-                        <div className="h-full w-full bg-transparent" />
-                      </motion.div>
-
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{
-                          opacity:
-                            activeSecondarySection === "milestones"
-                              ? 0
-                              : fadeInOnly(
-                                  postClockProgress + postClockFadeLead + postClockWorkLead,
-                                  4,
-                                ),
-                        }}
-                        transition={{ duration: 0.18, ease: easeOut }}
-                      >
-                        <WorkExperienceSection
-                          reveal={hasSeenWork}
-                          contentClassName="mx-auto max-w-[1320px]"
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        style={{ height: `${stackRowHeight}%` }}
-                        animate={{
-                          opacity:
-                            activeSecondarySection === "milestones"
-                              ? 0
-                              : fadeInOnly(postClockProgress + postClockFadeLead, 5),
-                        }}
-                        transition={{ duration: 0.18, ease: easeOut }}
-                      >
-                        <FooterSection
-                          reveal={hasSeenFooter}
-                          socials={socials}
-                          contentClassName="mx-auto max-w-[1320px]"
-                        />
-                      </motion.div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </section>
-
-          {/* Keep the clock straddling the panel boundary: 70% in panel one, 30% in panel two. */}
+          {/* STRADDLING CLOCK */}
+          {/* Because it's positioned at left: 100vw, it naturally straddles the two panels when the container shifts left! */}
           <motion.div
-            className="pointer-events-none absolute left-[100vw] top-1/2 z-[12] -translate-x-[65%] -translate-y-1/2"
-            animate={{
-              y: `${-110 * postClockProgress}vh`,
-              opacity: Math.max(0, 1 - postClockProgress),
-            }}
-            transition={{ duration: 0.3, ease: easeOut }}
+            // Note: Framer Motion `y` controls vertical transform; remove the translate-y utility.
+            className="pointer-events-none absolute left-[100vw] top-1/2 z-[12] -translate-x-[65%]"
+            style={{ y: clockY, opacity: clockOpacity }}
           >
             <DialClock className="relative" edgeOffset={false} />
           </motion.div>
