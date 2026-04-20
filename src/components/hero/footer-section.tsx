@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 type SocialIcon = "github" | "linkedin" | "email" | "website";
@@ -131,27 +132,67 @@ export function FooterSection({
             }}
             className="text-xs uppercase tracking-[0.3em] text-white/58"
           >
-            Final Section
+            Like what you see?
           </motion.p>
 
-          <motion.h2
-            variants={{
-              hidden: { opacity: 0, y: 14 },
-              visible: {
-                opacity: 1,
-                y: 0,
-                transition: { duration: 0.52, ease: easeOut },
-              },
-            }}
-            className="mt-4"
-          >
-            <Link
-              href="/contact"
-              className="inline-flex items-center rounded-full border-[0.5px] border-[#FA5D19]/55 bg-[#FA5D19]/10 px-6 py-3 font-display text-[clamp(1.4rem,3.8vw,2.8rem)] leading-none tracking-[-0.02em] text-[#FA5D19] transition-colors hover:bg-[#FA5D19]/16"
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
+            <motion.h2
+              variants={{
+                hidden: { opacity: 0, y: 14 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.52, ease: easeOut },
+                },
+              }}
             >
-              Let&apos;s Connect
-            </Link>
-          </motion.h2>
+              <Link
+                href="/contact"
+                className="inline-flex items-center rounded-full border-[0.5px] border-[#FA5D19]/55 bg-[#FA5D19]/10 px-6 py-3 font-display text-[clamp(1.4rem,3.8vw,2.8rem)] leading-none tracking-[-0.02em] text-[#FA5D19] transition-colors hover:bg-[#FA5D19]/16"
+              >
+                Let&apos;s Connect!
+              </Link>
+            </motion.h2>
+
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, x: 28, y: 12, rotate: -7, scale: 0.84 },
+                visible: {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                  scale: 1,
+                  transition: {
+                    duration: 0.66,
+                    delay: 0.08,
+                    ease: easeOut,
+                  },
+                },
+              }}
+              className="ml-auto"
+            >
+              <Link
+                href="/easter-egg"
+                aria-label="Open easter egg page"
+                className="group block"
+              >
+                <motion.div
+                  whileHover={{ y: -3, rotate: 1.5, scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <Image
+                    src="/cat.png"
+                    alt="Cat sticker that says click me"
+                    width={260}
+                    height={180}
+                    className="h-auto w-[130px] select-none object-contain drop-shadow-[0_14px_26px_rgba(0,0,0,0.36)] sm:w-[168px] md:w-[230px]"
+                  />
+                </motion.div>
+              </Link>
+            </motion.div>
+          </div>
 
           <motion.p
             variants={{
@@ -164,7 +205,7 @@ export function FooterSection({
             }}
             className="mt-5 max-w-2xl text-sm leading-relaxed text-white/72 sm:text-base"
           >
-            &quot;Great products are built where thoughtful design meets relentless engineering.&quot;
+            &quot;To progress again, man must remake himself. And he cannot remake himself without suffering. For he is both the marble and the sculptor. In order to uncover his true visage he must shatter his own substance with heavy blows of his hammer.&quot; ~Alexis Carrell
           </motion.p>
         </div>
 
@@ -180,7 +221,7 @@ export function FooterSection({
           className="mt-10 flex flex-col gap-4 border-t-[0.5px] border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <p className="text-xs uppercase tracking-[0.16em] text-white/45">
-            All Rights Reserved
+            ©2026 Made by Mohamad Ajaz - All Rights Reserved
           </p>
 
           <div className="flex items-center gap-2.5">
