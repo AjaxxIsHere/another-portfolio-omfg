@@ -50,8 +50,8 @@ function DialRing({
             key={`${value}-${index}`}
             className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-1/2 select-none items-center justify-center"
             style={{
-              left: `${x}%`,
-              top: `${y}%`,
+              left: `${x.toFixed(4)}%`,
+              top: `${y.toFixed(4)}%`,
             }}
           >
             {showNumber ? (
@@ -168,6 +168,8 @@ export function DialClock({ className, edgeOffset = true }: DialClockProps) {
             src="/profilePhtoo.jpeg"
             alt="Profile photo"
             fill
+            // sizes: match the responsive clamp sizing used by the container
+            sizes="(max-width: 640px) 88vw, (max-width: 1024px) 72vw, 29rem"
             priority
             className="object-cover filter grayscale hover:grayscale-0 transition-all duration-200 pointer-events-auto"
           />

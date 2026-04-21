@@ -165,6 +165,7 @@ export function MilestonesSection({
                       priority={false}
                       draggable={false}
                       className="select-none bg-transparent drop-shadow-2xl"
+                      style={{ width: "auto", height: "auto" }}
                     />
                   </motion.button>
                 </motion.div>

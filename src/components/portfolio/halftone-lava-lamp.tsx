@@ -376,7 +376,7 @@ export function HalftoneBlobsBackground() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden md:absolute" style={{ backgroundColor: DIAMOND_BG }}>
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden md:absolute" style={{ backgroundColor: DIAMOND_BG }}>
       <canvas ref={canvasRef} className="block h-full w-full" />
     </div>
   );
