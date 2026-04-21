@@ -3,13 +3,10 @@
 import {
   AnimatePresence,
   motion,
-  useMotionTemplate,
-  useMotionValue,
-  useSpring,
   useScroll,
   useTransform,
 } from "framer-motion";
-import { useRef, type MouseEvent } from "react";
+import { useRef } from "react";
 import { useHeroCamera } from "@/components/hero/use-hero-camera";
 import { DialClock } from "@/components/hero/dial-clock";
 import {
@@ -23,6 +20,7 @@ import { WorkExperienceSection } from "@/components/hero/work-experience-section
 import { FooterSection } from "@/components/hero/footer-section";
 import { AboutSection } from "@/components/hero/about-section";
 import { GlitchText } from "@/components/portfolio/glitch-text";
+import { HalftoneBlobsBackground } from "../portfolio/halftone-lava-lamp";
 
 type SocialIcon = "github" | "linkedin" | "email" | "website";
 
@@ -41,10 +39,10 @@ type HeroShellProps = {
 };
 
 const defaultSocials: SocialLink[] = [
-  { label: "GitHub", href: "#", icon: "github" },
-  { label: "LinkedIn", href: "#", icon: "linkedin" },
-  { label: "Email", href: "#", icon: "email" },
-  { label: "Website", href: "#", icon: "website" },
+  { label: "GitHub", href: "https://github.com/AjaxxIsHere", icon: "github" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/mohamad-ajaz/", icon: "linkedin" },
+  { label: "Email", href: "mailto:ajaz2468@gmail.com", icon: "email" },
+  { label: "Instagram", href: "https://www.instagram.com/yours.truly__aj/profilecard/", icon: "website" },
 ];
 
 const defaultMilestones: MilestoneStat[] = [
@@ -159,7 +157,7 @@ function SocialGlyph({ icon }: { icon: SocialIcon }) {
       role="img"
       aria-labelledby="website-title"
     >
-      <title id="website-title">Website</title>
+      <title id="website-title">Instagram</title>
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -193,7 +191,7 @@ function HeroTextBlock({
         variants={riseIn}
         className="text-xs uppercase tracking-[0.3em] text-white/58"
       >
-        Software Engineer
+        Web Developer | Software Engineer
       </motion.p>
 
       <motion.h1
@@ -263,70 +261,69 @@ export function HeroShell({
   socials = defaultSocials,
   milestones = defaultMilestones,
 }: HeroShellProps) {
-  const pointerX = useMotionValue(-1000);
-  const pointerY = useMotionValue(-1000);
-  const smoothX = useSpring(pointerX, {
-    stiffness: 100,
-    damping: 20,
-    mass: 0.3,
-  });
-  const smoothY = useSpring(pointerY, {
-    stiffness: 100,
-    damping: 20,
-    mass: 0.3,
-  });
-
-  const maskImage = useMotionTemplate`radial-gradient(circle 380px at ${smoothX}px ${smoothY}px, black 15%, transparent 100%)`;
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { cameraState } = useHeroCamera(scrollContainerRef);
 
   // Track the native scrollbar inside the container
-  const { scrollY } = useScroll({ container: scrollContainerRef });
+  const { scrollY, scrollYProgress } = useScroll({ container: scrollContainerRef });
 
   // Map the native scroll position to the Clock's Y position and Opacity
   // When scroll reaches 800px, the clock is pushed entirely off screen natively!
   const clockY = useTransform(scrollY, [0, 800], ["-50%", "-150%"]);
   const clockOpacity = useTransform(scrollY, [0, 600], [1, 0]);
 
-  const handlePointerMove = (event: MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    pointerX.set(event.clientX - rect.left);
-    pointerY.set(event.clientY - rect.top);
-  };
+  // Rail progress and section thresholds
+  const railProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const sections = ["LeetCode", "Education", "Projects", "Work", "Footer"] as const;
+  // explicit per-dot transforms (avoid calling hooks inside callbacks to satisfy lint rules)
+  const t0 = 0;
+  const t1 = 1 / 4;
+  const t2 = 2 / 4;
+  const t3 = 3 / 4;
+  const t4 = 1;
 
-  const handlePointerLeave = () => {
-    pointerX.set(-1000);
-    pointerY.set(-1000);
-  };
+  const dotScale0 = useTransform(scrollYProgress, [Math.max(0, t0 - 0.06), Math.min(1, t0 + 0.06)], [0.9, 1.4]);
+  const dotScale1 = useTransform(scrollYProgress, [Math.max(0, t1 - 0.06), Math.min(1, t1 + 0.06)], [0.9, 1.4]);
+  const dotScale2 = useTransform(scrollYProgress, [Math.max(0, t2 - 0.06), Math.min(1, t2 + 0.06)], [0.9, 1.4]);
+  const dotScale3 = useTransform(scrollYProgress, [Math.max(0, t3 - 0.06), Math.min(1, t3 + 0.06)], [0.9, 1.4]);
+  const dotScale4 = useTransform(scrollYProgress, [Math.max(0, t4 - 0.06), Math.min(1, t4 + 0.06)], [0.9, 1.4]);
+
+  const dotOpacity0 = useTransform(scrollYProgress, [Math.max(0, t0 - 0.08), Math.min(1, t0 + 0.08)], [0.5, 1]);
+  const dotOpacity1 = useTransform(scrollYProgress, [Math.max(0, t1 - 0.08), Math.min(1, t1 + 0.08)], [0.5, 1]);
+  const dotOpacity2 = useTransform(scrollYProgress, [Math.max(0, t2 - 0.08), Math.min(1, t2 + 0.08)], [0.5, 1]);
+  const dotOpacity3 = useTransform(scrollYProgress, [Math.max(0, t3 - 0.08), Math.min(1, t3 + 0.08)], [0.5, 1]);
+  const dotOpacity4 = useTransform(scrollYProgress, [Math.max(0, t4 - 0.08), Math.min(1, t4 + 0.08)], [0.5, 1]);
+
+  const dotScales = [dotScale0, dotScale1, dotScale2, dotScale3, dotScale4];
+  const dotOpacities = [dotOpacity0, dotOpacity1, dotOpacity2, dotOpacity3, dotOpacity4];
 
   // camera hook handles wheel + snapping logic
 
   return (
-    <div
-      className="relative isolate min-h-screen overflow-hidden bg-background md:h-screen"
-      onMouseMove={handlePointerMove}
-      onMouseLeave={handlePointerLeave}
-    >
-      <div className="pointer-events-none absolute inset-0">
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.1, ease: easeOut }}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(237,237,237,0.1)_1px,transparent_0)] [background-size:24px_24px] opacity-25" />
+    <div className="relative isolate min-h-screen overflow-hidden bg-background md:h-screen">
+      <HalftoneBlobsBackground />
 
-          <motion.div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_1.5px_1.5px,rgba(250,93,25,0.45)_1.5px,transparent_0)] [background-size:24px_24px] opacity-80"
-            style={{
-              WebkitMaskImage: maskImage,
-              maskImage,
-            }}
-          />
+      <div className="relative z-10 hidden md:block">
+        {/* Sticky progress rail (desktop only) - moved outside the transformed container so it stays fixed to viewport */}
+        <motion.div className="pointer-events-none fixed left-6 top-1/2 z-30 -translate-y-1/2 hidden md:flex items-center">
+          <div className="relative h-[60vh] w-1 rounded-full bg-white/6 overflow-hidden">
+            <motion.div
+              className="absolute left-0 top-0 h-full w-full origin-top bg-accent"
+              style={{ scaleY: railProgress, transformOrigin: "top" }}
+            />
+          </div>
+          <div className="ml-3 flex flex-col gap-4">
+            {sections.map((label, idx) => (
+              <motion.div
+                key={label}
+                aria-hidden
+                style={{ scale: dotScales[idx], opacity: dotOpacities[idx] }}
+                className="h-3 w-3 rounded-full bg-white/80"
+              />
+            ))}
+          </div>
         </motion.div>
-      </div>
 
-      <div className="hidden md:block">
         <motion.div
           className="relative flex h-screen w-[200vw]"
           animate={{ x: cameraState === "hero" ? "0vw" : "-100vw" }}
@@ -373,7 +370,6 @@ export function HeroShell({
             </AnimatePresence>
 
             {/* FREE VERTICAL SCROLL SECTION */}
-            {/* Unlocks the scrollbar only when cameraState is 'native-content' */}
             <motion.div
               ref={scrollContainerRef}
               className={`absolute inset-0 h-full w-full ${cameraState === "native-content" ? "pointer-events-auto overflow-y-auto" : "pointer-events-none overflow-hidden"}`}
@@ -384,25 +380,25 @@ export function HeroShell({
               }}
               transition={{ duration: 0.5, ease: easeOut }}
             >
-              {/* LeetCode is back in the native scroll container! */}
+              {/* LEETCODE: Must stay min-h-screen to perfectly catch the slideshow crossfade */}
               <div className="min-h-screen">
                 <LeetCodeActivitySection reveal={cameraState === "native-content"} username="AjaxxIsHere" contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
               </div>
 
-              <div className="min-h-screen">
+              {/* ALL OTHER SECTIONS: Changed to h-auto to remove massive gaps! */}
+              <div className="h-auto">
                 <EducationSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
               </div>
 
-              <div className="min-h-screen pb-16">
-                <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1280px]" />
+              <div className="h-auto">
+                <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
               </div>
 
-              {/* Dynamic height! Let it flow natively. */}
-              <div className="h-auto pb-24 pt-10">
-                <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1320px]" />
+              <div className="h-auto">
+                <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
               </div>
 
-              <div className="min-h-screen flex items-end">
+              <div className="h-auto">
                 <FooterSection reveal={cameraState === "native-content"} socials={socials} contentClassName="mx-auto max-w-[1320px]" />
               </div>
             </motion.div>
@@ -420,7 +416,7 @@ export function HeroShell({
         </motion.div>
       </div>
 
-      <div className="md:hidden">
+      <div className="relative z-10 md:hidden">
         <motion.main
           className="relative mx-auto grid min-h-screen w-full max-w-[1440px] gap-8 px-5 py-10 sm:px-6 sm:py-12"
           initial="hidden"

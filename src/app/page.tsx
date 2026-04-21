@@ -14,24 +14,25 @@ const techStack = [
 ];
 
 const socials = [
-  { label: "GitHub", href: "#", icon: "github" as const },
-  { label: "LinkedIn", href: "#", icon: "linkedin" as const },
-  { label: "Email", href: "#", icon: "email" as const },
-  { label: "Website", href: "#", icon: "website" as const },
+  { label: "GitHub", href: "https://github.com/AjaxxIsHere", icon: "github" as const },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/mohamad-ajaz/", icon: "linkedin" as const },
+  { label: "Email", href: "mailto:ajaz2468@gmail.com", icon: "email" as const },
+  { label: "Instagram", href: "https://www.instagram.com/yours.truly__aj/profilecard/", icon: "website" as const },
 ];
 
 const milestones = [
-  { label: "Orbits Completed", value: "23", note: "Orbits Completed" },
-  { label: "Years Breaking & Fixing Code", value: "5", note: "Placeholder value" },
-  { label: "Side Quests Completed", value: "11", note: "Placeholder value" },
-  { label: "Deployments", value: "5", note: "Placeholder value" },
+  { label: "Age", value: "23", note: "Orbits Completed" },
+  { label: "Experience", value: "5", note: "Years Breaking & Fixing Code" },
+  { label: "Personal Projects", value: "11", note: "Side Quests Completed" },
+  { label: "Deployments", value: "5", note: "(a.k.a. The Boss Battles)" },
 ];
 
 export default function Home() {
   return (
     <HeroShell
       name="Mohamad Ajaz Imran"
-      about="🇵🇭 Filipino | Aspiring Software Engineer & Mobile app Developer | Results Driven | Competitive Gamer | 🐱 Cats "
+      // about="🇵🇭 Filipino | Aspiring Software Engineer & Mobile app Developer | Results Driven | Competitive Gamer | 🐱 Cats "
+      about="Filipino Engineer and result-driven innovator, blending high-end aesthetics with complex code for the love of gaming, cats, and the perfect build."
       stack={techStack}
       socials={socials}
       milestones={milestones}

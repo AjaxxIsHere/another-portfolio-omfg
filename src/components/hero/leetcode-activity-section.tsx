@@ -77,11 +77,15 @@ export function LeetCodeActivitySection({
     };
   }, [username]);
   return (
+    // <section
+    //   className={`relative mx-auto flex h-full w-full max-w-[1440px] items-center px-6 py-16 sm:px-8 md:px-10 lg:px-14 ${className ?? ""}`}
+    // >
     <section
-      className={`relative mx-auto flex h-full w-full max-w-[1440px] items-center px-6 py-16 sm:px-8 md:px-10 lg:px-14 ${className ?? ""}`}
+      // Removed 'items-center', added 'pt-[30vh]'
+      className={`relative mx-auto flex h-full w-full max-w-[1440px] flex-col justify-start px-6 pt-[8vh] pb-16 sm:px-8 md:px-10 lg:px-14 ${className ?? ""}`}
     >
       <motion.div
-        className={`w-full ${contentClassName ?? ""}`}
+        className={`w-full translate-y-4 md:translate-y-15 ${contentClassName ?? ""}`}
         initial={false}
         animate={reveal ? "visible" : "hidden"}
         variants={{
@@ -133,7 +137,7 @@ export function LeetCodeActivitySection({
           }}
           className="mt-5 max-w-2xl text-base text-white/72 sm:text-lg"
         >
-          Last 365 days of submissions. Data hookup is intentionally left empty for now.
+          Last 365 days of Leetcode submissions. You could say I like to keep busy solving problems, or maybe I just really like heatmaps.
         </motion.p>
 
         <motion.div

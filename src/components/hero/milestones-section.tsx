@@ -48,10 +48,10 @@ export function MilestonesSection({
   const [stickerTurns, setStickerTurns] = useState<Record<string, number>>({});
   const stickers = ["/sun.png", "/laptop.png", "/target.png", "/rocket.png"];
   const stickerVariants = [
-    { top: -25, right: -40, rotate: 0, size: 176, crawlX: 56, crawlY: -46 },
+    { top: -25, right: -40, rotate: -10, size: 176, crawlX: 56, crawlY: -46 },
     { top: -30, right: -70, rotate: 8, size: 198, crawlX: 64, crawlY: -52 },
-    { top: -16, right: -18, rotate: -6, size: 176, crawlX: 52, crawlY: -36 },
-    { top: -20, right: -10, rotate: 12, size: 178, crawlX: 60, crawlY: -44 },
+    { top: -16, right: -48, rotate: -6, size: 196, crawlX: 52, crawlY: -36 },
+    { top: -20, right: -60, rotate: 12, size: 178, crawlX: 60, crawlY: -44 },
   ];
   return (
     <section

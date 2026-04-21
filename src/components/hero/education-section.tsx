@@ -16,6 +16,7 @@ type EducationItem = {
   duration: string;
   location: string;
   description: string;
+  image: string;
 };
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -23,30 +24,33 @@ const easeOut = [0.16, 1, 0.3, 1] as const;
 const defaultItems: EducationItem[] = [
   {
     id: "school-one",
-    schoolName: "School One",
-    degree: "Degree Placeholder",
-    duration: "20XX - 20XX",
-    location: "City, Country",
+    schoolName: "Heriot-Watt University",
+    degree: "BSc Computer Science (Expected 2026)",
+    duration: "2023 - 2026",
+    location: "Dubai, UAE",
     description:
-      "Placeholder description for this school. Add key coursework, achievements, and highlights later.",
+      "Currently pursuing a degree in Computer Science with a focus on software development, algorithms, and systems design. Engaged in projects ranging from mobile app development to AI research, while actively participating in coding clubs and hackathons to sharpen my skills and collaborate with fellow tech enthusiasts.",
+    image: "/school1.jpg", // Replace with your image
   },
   {
     id: "school-two",
-    schoolName: "School Two",
-    degree: "Degree Placeholder",
-    duration: "20XX - 20XX",
-    location: "City, Country",
+    schoolName: "Universal College Lanka",
+    degree: "BSc Computer Science",
+    duration: "2021 - 2022",
+    location: "Colombo, Sri Lanka",
     description:
-      "Placeholder description for this school. Add clubs, leadership roles, and project experience here.",
+      "Completed foundational coursework in computer science, covering programming languages, data structures, and software engineering principles. Here is where I first discovered my passion for coding and started building small projects, which laid the groundwork for my further studies and career in software development.",
+    image: "/school2.jpg", // Replace with your image
   },
   {
     id: "school-three",
-    schoolName: "School Three",
-    degree: "Degree Placeholder",
-    duration: "20XX - 20XX",
-    location: "City, Country",
+    schoolName: "The Asian International School",
+    degree: "High School Diploma",
+    duration: "2017 - 2021",
+    location: "Colombo, Sri Lanka",
     description:
-      "Placeholder description for this school. Mention focus areas, milestones, and relevant outcomes.",
+      "Graduated with a focus on business and mathematics, excelling in subjects like commerce, economics, and calculus. Actively involved in the school's football team, where i discovered my love for sports and teamwork. This period was crucial in developing my analytical thinking and discipline, which I carry into my software development journey.",
+    image: "/school3.jpg", // Replace with your image
   },
 ];
 
@@ -111,7 +115,7 @@ export function EducationSection({ reveal, className, contentClassName }: Educat
           }}
           className="mt-5 max-w-3xl text-base leading-relaxed text-white/72 sm:text-lg"
         >
-          A quick look at my learning path. Select a school on the left to view more details on the right.
+          A quick look at my learning path. Each step has been a building block in my development journey.
         </motion.p>
 
         <motion.div
@@ -123,42 +127,83 @@ export function EducationSection({ reveal, className, contentClassName }: Educat
               transition: { duration: 0.5, ease: easeOut },
             },
           }}
-          className="mt-10 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+          className="mt-10 grid gap-10 lg:gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
         >
+          {/* LEFT COLUMN: Static Snap Accordion with Drop-Up Animation */}
           <div className="p-0">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/52">Schools</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-white/52 mb-4">Schools</p>
 
-            <div className="mt-3 divide-y divide-white/6">
+            <div className="flex flex-col gap-3">
               {defaultItems.map((item, index) => {
                 const isActive = selectedId === item.id;
 
                 return (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
                     onClick={() => setSelectedId(item.id)}
-                    className={`group flex w-full items-center gap-3 py-3 px-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 ${
-                      isActive ? "text-foreground" : "text-white/78 hover:text-foreground"
+                    className={`group relative cursor-pointer overflow-hidden rounded-2xl transition-all duration-300 ${
+                      isActive 
+                        ? "bg-surface/50 border-[0.5px] border-white/20 shadow-lg" 
+                        : "bg-transparent hover:bg-white/5"
                     }`}
                   >
-                    <span
-                      className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-medium uppercase tracking-[0.16em] ${
-                        isActive ? "text-accent border-accent/60 bg-accent/6" : "text-white/64 border-white/6 bg-transparent"
-                      } border-[0.5px]`}
-                      aria-hidden
-                    >
-                      {index + 1}
-                    </span>
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      {isActive ? (
+                        /* EXPANDED CINEMA SCOPE STATE */
+                        <motion.div
+                          key="expanded"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.35, ease: easeOut }}
+                          className="relative aspect-[21/9] w-full"
+                        >
+                          <img
+                            src={item.image}
+                            alt={item.schoolName}
+                            className="absolute inset-0 h-full w-full object-cover grayscale opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
+                          />
+                          {/* Gradient to make text readable */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent pointer-events-none" />
 
-                    <span className="text-sm font-medium tracking-[0.01em]">{item.schoolName}</span>
-                  </button>
+                          {/* Overlay Text */}
+                          <div className="absolute bottom-4 left-4 right-4 flex items-center gap-4">
+                            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[0.5px] border-[#FA5D19]/60 bg-[#FA5D19]/20 text-xs font-medium uppercase tracking-[0.16em] text-[#FA5D19] backdrop-blur-md">
+                              {index + 1}
+                            </span>
+                            <span className="font-display text-2xl tracking-[0.01em] text-white drop-shadow-md lg:text-3xl">
+                              {item.schoolName}
+                            </span>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        /* COLLAPSED BUTTON STATE */
+                        <motion.div
+                          key="collapsed"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="flex w-full items-center gap-4 py-3 px-2"
+                        >
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-[0.5px] border-white/10 bg-surface/40 text-xs font-medium uppercase tracking-[0.16em] text-white/64 group-hover:border-white/30 group-hover:text-white/90 transition-colors">
+                            {index + 1}
+                          </span>
+                          <span className="text-base font-medium tracking-[0.01em] text-white/78 group-hover:text-white transition-colors">
+                            {item.schoolName}
+                          </span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 );
               })}
             </div>
           </div>
 
-          <div className="p-0">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/52">Selected School Details</p>
+          {/* RIGHT COLUMN: Just the text details, matching original height exactly */}
+          <div className="p-0 lg:pl-6">
+            <p className="text-xs uppercase tracking-[0.22em] text-white/52">Details:</p>
 
             <AnimatePresence mode="wait">
               <motion.div

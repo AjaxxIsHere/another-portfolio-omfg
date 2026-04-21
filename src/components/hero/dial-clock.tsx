@@ -169,8 +169,7 @@ export function DialClock({ className, edgeOffset = true }: DialClockProps) {
             alt="Profile photo"
             fill
             priority
-            className="object-cover grayscale"
-            style={{ filter: "grayscale(100%)" }}
+            className="object-cover filter grayscale hover:grayscale-0 transition-all duration-200 pointer-events-auto"
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.28)_0%,rgba(255,255,255,0.04)_38%,transparent_70%)]" />
         </div>

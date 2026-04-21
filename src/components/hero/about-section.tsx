@@ -173,10 +173,7 @@ export function AboutSection({ reveal, className, contentClassName }: AboutSecti
           }}
           className="mt-5 max-w-3xl text-base leading-relaxed text-white/72 sm:text-lg"
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          Hi, I&apos;m Ajaz, but feel free to call me AJ. I&apos;m a mobile and web developer, and an aspiring software engineer currently studying at Heriot-Watt University Dubai, graduating in 2026. I enjoy building high quality applications and turning ideas into real, usable products. Outside of development, I like experimenting with Linux, tinkering with hardware, and keeping up with the latest in tech and gaming. I&apos;m always open to new challenges and collaborations, let&apos;s build something great!
         </motion.p>
 
         <motion.div

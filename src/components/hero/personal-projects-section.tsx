@@ -14,7 +14,7 @@ type ProjectItem = {
   title: string;
   description: string;
   stack: string[];
-  bannerUrl?: string; // Optional if you have an actual image
+  bannerUrl?: string;
   githubUrl: string;
   liveUrl: string;
 };
@@ -22,51 +22,56 @@ type ProjectItem = {
 const defaultProjects: ProjectItem[] = [
   {
     id: "project-1",
-    title: "Project Alpha",
-    description: "A comprehensive dashboard for tracking analytics in real-time, focusing on user behavior and product engagement metrics.",
-    stack: ["React", "Next.js", "Tailwind CSS"],
-    githubUrl: "#",
-    liveUrl: "#",
+    title: "Larry's Wordle - A Wordle Inspired Mobile Game",
+    description: "A mobile game inspired by Wordle, built with Flutter and AWS. It features a custom word list, daily challenges, and a sleek UI. I built this to practice mobile development and have fun with a project that combines my love for word games and coding.",
+    stack: ["Flutter", "Riverpod", "AWS DynamoDB", "AWS Lambda"],
+    githubUrl: "https://github.com/AjaxxIsHere/Larry-s-Wordle-A-wordle-inspired-mobile-game",
+    liveUrl: "https://drive.usercontent.google.com/download?id=1dq8AhOxZu4l5by8WaAXgb9OZuVb4mSd_&export=download&authuser=0",
+    bannerUrl: "/wordle.png", 
   },
   {
     id: "project-2",
-    title: "Project Beta",
-    description: "An e-commerce platform boilerplate designed for high conversion rates with seamless Stripe integration and a headless CMS.",
-    stack: ["TypeScript", "Stripe", "Sanity"],
-    githubUrl: "#",
+    title: "WattHome - Smart Home",
+    description: "WattHome is an open-source project designed to help users monitor, analyze, and optimize their home energy consumption. By leveraging real-time data and advanced analytics, WattHome empowers homeowners to make informed decisions about energy usage, reduce costs, and contribute to a more sustainable future. ",
+    stack: ["Flutter", "Firebase", "Google Cloud Functions", "MySQL"],
+    githubUrl: "https://github.com/WattHome-SmartHome/WattHome-Public",
     liveUrl: "#",
+    bannerUrl: "/watthome.jpeg",
   },
   {
     id: "project-3",
-    title: "Project Gamma",
-    description: "A collaborative real-time editor using web sockets allowing multiple users to simultaneously edit and draw diagrams.",
-    stack: ["Socket.io", "Canvas API", "Node.js"],
-    githubUrl: "#",
+    title: "Squash Web Browser - Minimalist Web Browser",
+    description: "A minimalist web browser built with Avalonia UI and C#. Squash focuses on speed, simplicity, and privacy, offering a clean interface with essential features. I created this project to explore desktop application development and experiment with building a browser from the ground up.",
+    stack: ["Avalonia UI", "C#", "WebView2"],
+    githubUrl: "https://github.com/AjaxxIsHere/Squash_Web_Browser",
     liveUrl: "#",
+    bannerUrl: "/squash.png",
   },
   {
     id: "project-4",
-    title: "Project Delta",
-    description: "Personal finance tracker app that integrates with Plaid API and intelligently categorizes user transactions.",
-    stack: ["PostgreSQL", "Prisma", "Express"],
-    githubUrl: "#",
+    title: "JobHuntingSucks - Yet another job scraper",
+    description: "A robust, modular web scraping system to aggregate tech jobs in the UAE from Indeed.ae and Bayt.com, featuring skill-based filtering and a Streamlit dashboard.",
+    stack: ["Python", "BeautifulSoup", "Streamlit", "SQLite"],
+    githubUrl: "https://github.com/AjaxxIsHere/JobHuntingSucks-A-python-tech-job-webscraper",
     liveUrl: "#",
   },
   {
     id: "project-5",
-    title: "Project Epsilon",
-    description: "Machine learning visualization app demonstrating neural network training steps visually directly in the browser.",
-    stack: ["TensorFlow.js", "D3.js", "Vite"],
-    githubUrl: "#",
+    title: "NextMovie - Movie Reviewing Application",
+    description: "My very first flutter project, NextMovie is a movie reviewing application that allows users to browse, search, and review movies. It features a clean UI and integrates with the TMDB API for movie data.",
+    stack: ["Flutter", "Provider", "TMDB API"],
+    githubUrl: "https://github.com/AjaxxIsHere/nextmovie_v2",
     liveUrl: "#",
+    bannerUrl: "/nextmovie.PNG",
   },
   {
     id: "project-6",
-    title: "Project Zeta",
-    description: "A desktop-class productivity app running natively via Tauri with an offline-first local database mechanism.",
-    stack: ["Rust", "Tauri", "SQLite"],
-    githubUrl: "#",
+    title: "P.U.R.R - Pipeline for Understanding Requirements Reliability Implementation",
+    description: "Dissertation Project. PURR is a requirements analysis pipeline that uses text classification machinine learning models to categorize software requirements based on reliability and implementation complexity.",
+    stack: ["Python", "scikit-learn", "BERT", "Hugging Face"],
+    githubUrl: "https://github.com/AjaxxIsHere/P.U.R.R-Pipeline-for-Understanding-Requirements-Reliability-Implementation",
     liveUrl: "#",
+    bannerUrl: "/purr.png",
   },
 ];
 
@@ -103,16 +108,27 @@ export function PersonalProjectsSection({ reveal, className, contentClassName }:
   };
 
   const renderCard = (project: ProjectItem) => (
-    <div key={project.id} className="flex min-h-[14rem] flex-col sm:flex-row overflow-hidden rounded-2xl border-[0.5px] border-white/10 bg-surface/70 backdrop-blur-sm transition-colors hover:border-white/20">
-      {/* Banner Image Placeholder */}
-      <div className="relative h-40 w-full shrink-0 border-b-[0.5px] border-white/10 bg-background/50 sm:h-auto sm:w-1/3 sm:border-b-0 sm:border-r-[0.5px]">
-        <div className="absolute inset-0 flex items-center justify-center text-white/20">
-          <span className="text-xs uppercase tracking-widest text-[#FA5D19]/40">{project.title}</span>
-        </div>
+    // Added 'h-full' to ensure the card stretches to fill the locked minimum height
+    <div key={project.id} className="group flex h-full min-h-[14rem] flex-col sm:flex-row overflow-hidden rounded-2xl border-[0.5px] border-white/10 bg-surface/70 backdrop-blur-sm transition-colors hover:border-white/20">
+      
+      {/* Dynamic Image Container */}
+      <div className="relative h-48 w-full shrink-0 border-b-[0.5px] border-white/10 bg-background/50 sm:h-auto sm:w-2/5 lg:w-1/3 sm:border-b-0 sm:border-r-[0.5px] overflow-hidden">
+        {project.bannerUrl ? (
+          <img
+            src={project.bannerUrl}
+            alt={`${project.title} screenshot`}
+            className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-80 transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-white/20 p-4 text-center">
+            <span className="text-xs uppercase tracking-widest text-[#FA5D19]/40">{project.title}</span>
+          </div>
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/40 to-transparent sm:bg-gradient-to-r" />
       </div>
       
       {/* Card Content */}
-      <div className="flex flex-1 flex-col justify-between p-5">
+      <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
         <div>
           <h3 className="font-display text-2xl leading-none text-foreground">{project.title}</h3>
           <p className="mt-3 text-sm leading-relaxed text-white/72">{project.description}</p>
@@ -136,15 +152,17 @@ export function PersonalProjectsSection({ reveal, className, contentClassName }:
           >
             <GithubIcon />
           </a>
-          <a
-            href={project.liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Live Project"
-            className="text-white/40 transition-colors hover:text-[#FA5D19]"
-          >
-            <LinkIcon />
-          </a>
+          {project.liveUrl !== "#" && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Live Project"
+              className="text-white/40 transition-colors hover:text-[#FA5D19]"
+            >
+              <LinkIcon />
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -226,14 +244,19 @@ export function PersonalProjectsSection({ reveal, className, contentClassName }:
                 transition={{ duration: 0.3 }}
                 className="flex flex-col"
               >
-                <div className="relative">
-                  <AnimatePresence mode="wait">
+                {/* THE FIX: Added strict minimum heights so the container is always large enough 
+                  to fit the tallest text, preventing the buttons below it from shifting.
+                */}
+                <div className="relative min-h-[38rem] sm:min-h-[24rem] lg:min-h-[22rem]">
+                  {/* Switched to popLayout so the height doesn't collapse to 0px during the crossfade */}
+                  <AnimatePresence mode="popLayout" initial={false}>
                     <motion.div
                       key={currentIndex}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3, ease: easeOut }}
+                      className="h-full w-full"
                     >
                       {renderCard(defaultProjects[currentIndex])}
                     </motion.div>
