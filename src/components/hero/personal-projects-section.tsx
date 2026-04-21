@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -114,9 +115,11 @@ export function PersonalProjectsSection({ reveal, className, contentClassName }:
       {/* Dynamic Image Container */}
       <div className="relative h-48 w-full shrink-0 border-b-[0.5px] border-white/10 bg-background/50 sm:h-auto sm:w-2/5 lg:w-1/3 sm:border-b-0 sm:border-r-[0.5px] overflow-hidden">
         {project.bannerUrl ? (
-          <img
+          <Image
             src={project.bannerUrl}
             alt={`${project.title} screenshot`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 40vw, 33vw"
             className="absolute inset-0 h-full w-full object-cover object-center grayscale opacity-80 transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
           />
         ) : (

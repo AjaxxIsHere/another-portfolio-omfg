@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useRef, type RefObject } from "react";
 
 type WorkExperienceSectionProps = {
@@ -56,8 +57,6 @@ const defaultExperiences: ExperienceItem[] = [
   }
 ];
 
-const easeOut = [0.16, 1, 0.3, 1] as const;
-
 function CarouselPanel({
   item,
   index,
@@ -74,10 +73,12 @@ function CarouselPanel({
 
   return (
     <div className="group relative overflow-hidden rounded-xl border-[0.5px] border-white/10 bg-background/45 h-40 sm:h-48">
-      <img
+      <Image
         key={`${item.id}-${safeIndex}`}
         src={currentImage}
         alt={`${item.role} screenshot`}
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
         // Added the transition and group-hover classes here to trigger the zoom and color pop
         className="absolute inset-0 h-full w-full object-cover grayscale opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
       />
@@ -105,12 +106,10 @@ function CarouselPanel({
   item,
   index,
   slideIndex,
-  scrollContainer,
 }: {
   item: ExperienceItem;
   index: number;
   slideIndex: number;
-  scrollContainer?: RefObject<HTMLDivElement | null>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isLeft = index % 2 === 0;
@@ -158,12 +157,8 @@ function CarouselPanel({
   );
 }
 
-export function WorkExperienceSection({
-  reveal,
-  className,
-  contentClassName,
-  scrollContainer,
-}: WorkExperienceSectionProps) {
+export function WorkExperienceSection(props: WorkExperienceSectionProps) {
+  const { className, contentClassName } = props;
   const [slideIndexes, setSlideIndexes] = useState<number[]>(
     defaultExperiences.map(() => 0),
   );
@@ -242,7 +237,6 @@ export function WorkExperienceSection({
                 item={item}
                 index={index}
                 slideIndex={slideIndexes[index]}
-                scrollContainer={scrollContainer}
               />
             ))}
           </div>

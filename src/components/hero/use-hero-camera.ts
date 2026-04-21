@@ -6,6 +6,7 @@ export type CameraState = "hero" | "about" | "milestones" | "native-content";
 export function useHeroCamera(scrollContainerRef: RefObject<HTMLDivElement | null>) {
   const [cameraState, setCameraState] = useState<CameraState>("hero");
   const [isSnapping, setIsSnapping] = useState(false);
+  const [hasEnteredNativeContent, setHasEnteredNativeContent] = useState(false);
   const settleTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function useHeroCamera(scrollContainerRef: RefObject<HTMLDivElement | nul
           setIsSnapping(true);
         } else if (cameraState === "milestones") {
           setCameraState("native-content"); // Triggers the Native Container fade-in
+          setHasEnteredNativeContent(true);
           setIsSnapping(true);
         }
       } else {
@@ -65,5 +67,5 @@ export function useHeroCamera(scrollContainerRef: RefObject<HTMLDivElement | nul
     };
   }, [isSnapping]);
 
-  return { cameraState };
+  return { cameraState, hasEnteredNativeContent };
 }

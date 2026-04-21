@@ -1,26 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   AnimatePresence,
   motion,
   useScroll,
   useTransform,
 } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHeroCamera } from "@/components/hero/use-hero-camera";
-import { DialClock } from "@/components/hero/dial-clock";
-import {
-  MilestonesSection,
-  type MilestoneStat,
-} from "@/components/hero/milestones-section";
-import { LeetCodeActivitySection } from "@/components/hero/leetcode-activity-section";
-import { EducationSection } from "@/components/hero/education-section";
-import { PersonalProjectsSection } from "@/components/hero/personal-projects-section";
-import { WorkExperienceSection } from "@/components/hero/work-experience-section";
-import { FooterSection } from "@/components/hero/footer-section";
-import { AboutSection } from "@/components/hero/about-section";
+import type { MilestoneStat } from "@/components/hero/milestones-section";
 import { GlitchText } from "@/components/portfolio/glitch-text";
-import { HalftoneBlobsBackground } from "../portfolio/halftone-lava-lamp";
 
 type SocialIcon = "github" | "linkedin" | "email" | "website";
 
@@ -67,6 +57,88 @@ const defaultMilestones: MilestoneStat[] = [
     note: "Placeholder value",
   },
 ];
+
+const HalftoneBlobsBackground = dynamic(
+  () =>
+    import("@/components/portfolio/halftone-lava-lamp").then(
+      (mod) => mod.HalftoneBlobsBackground,
+    ),
+  {
+    ssr: false,
+  },
+);
+
+const DialClock = dynamic(
+  () => import("@/components/hero/dial-clock").then((mod) => mod.DialClock),
+  {
+    ssr: false,
+  },
+);
+
+const AboutSection = dynamic(
+  () => import("@/components/hero/about-section").then((mod) => mod.AboutSection),
+  {
+    loading: () => <div className="min-h-[55vh]" />,
+  },
+);
+
+const MilestonesSection = dynamic(
+  () =>
+    import("@/components/hero/milestones-section").then(
+      (mod) => mod.MilestonesSection,
+    ),
+  {
+    loading: () => <div className="min-h-[55vh]" />,
+  },
+);
+
+const LeetCodeActivitySection = dynamic(
+  () =>
+    import("@/components/hero/leetcode-activity-section").then(
+      (mod) => mod.LeetCodeActivitySection,
+    ),
+  {
+    loading: () => <div className="min-h-[55vh]" />,
+  },
+);
+
+const EducationSection = dynamic(
+  () =>
+    import("@/components/hero/education-section").then(
+      (mod) => mod.EducationSection,
+    ),
+  {
+    loading: () => <div className="min-h-[55vh]" />,
+  },
+);
+
+const PersonalProjectsSection = dynamic(
+  () =>
+    import("@/components/hero/personal-projects-section").then(
+      (mod) => mod.PersonalProjectsSection,
+    ),
+  {
+    loading: () => <div className="min-h-[55vh]" />,
+  },
+);
+
+const WorkExperienceSection = dynamic(
+  () =>
+    import("@/components/hero/work-experience-section").then(
+      (mod) => mod.WorkExperienceSection,
+    ),
+  {
+    loading: () => <div className="min-h-[55vh]" />,
+  },
+);
+
+const FooterSection = dynamic(
+  () =>
+    import("@/components/hero/footer-section").then((mod) => mod.FooterSection),
+  {
+    loading: () => <div className="min-h-[40vh]" />,
+  },
+);
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
@@ -262,7 +334,21 @@ export function HeroShell({
   milestones = defaultMilestones,
 }: HeroShellProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { cameraState } = useHeroCamera(scrollContainerRef);
+  const { cameraState, hasEnteredNativeContent } = useHeroCamera(scrollContainerRef);
+  const [showMobileLongform, setShowMobileLongform] = useState(false);
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      setShowMobileLongform(true);
+    }, 450);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, []);
+
+  const shouldRenderNativeSections =
+    cameraState === "native-content" || hasEnteredNativeContent;
 
   // Track the native scrollbar inside the container
   const { scrollY, scrollYProgress } = useScroll({ container: scrollContainerRef });
@@ -380,27 +466,33 @@ export function HeroShell({
               }}
               transition={{ duration: 0.5, ease: easeOut }}
             >
-              {/* LEETCODE: Must stay min-h-screen to perfectly catch the slideshow crossfade */}
-              <div className="min-h-screen">
-                <LeetCodeActivitySection reveal={cameraState === "native-content"} username="AjaxxIsHere" contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
-              </div>
+              {shouldRenderNativeSections ? (
+                <>
+                  {/* LEETCODE: Must stay min-h-screen to perfectly catch the slideshow crossfade */}
+                  <div className="min-h-screen">
+                    <LeetCodeActivitySection reveal={cameraState === "native-content"} username="AjaxxIsHere" contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
+                  </div>
 
-              {/* ALL OTHER SECTIONS: Changed to h-auto to remove massive gaps! */}
-              <div className="h-auto">
-                <EducationSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
-              </div>
+                  {/* ALL OTHER SECTIONS: Changed to h-auto to remove massive gaps! */}
+                  <div className="h-auto">
+                    <EducationSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+                  </div>
 
-              <div className="h-auto">
-                <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
-              </div>
+                  <div className="h-auto">
+                    <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+                  </div>
 
-              <div className="h-auto">
-                <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
-              </div>
+                  <div className="h-auto">
+                    <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+                  </div>
 
-              <div className="h-auto">
-                <FooterSection reveal={cameraState === "native-content"} socials={socials} contentClassName="mx-auto max-w-[1320px]" />
-              </div>
+                  <div className="h-auto">
+                    <FooterSection reveal={cameraState === "native-content"} socials={socials} contentClassName="mx-auto max-w-[1320px]" />
+                  </div>
+                </>
+              ) : (
+                <div className="h-full w-full" />
+              )}
             </motion.div>
           </section>
 
@@ -451,68 +543,78 @@ export function HeroShell({
           </div>
         </motion.main>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.48, ease: easeOut }}
-        >
-          <AboutSection reveal={true} className="min-h-screen" />
-        </motion.div>
+        {showMobileLongform ? (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.48, ease: easeOut }}
+            >
+              <AboutSection reveal={true} className="min-h-screen" />
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.5, ease: easeOut }}
-        >
-          <MilestonesSection stats={milestones} reveal={true} className="min-h-screen" />
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.5, ease: easeOut }}
+            >
+              <MilestonesSection stats={milestones} reveal={true} className="min-h-screen" />
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.56, ease: easeOut }}
-        >
-          <LeetCodeActivitySection reveal={true} username={"AjaxxIsHere"} className="min-h-screen" />
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.56, ease: easeOut }}
+            >
+              <LeetCodeActivitySection reveal={true} username={"AjaxxIsHere"} className="min-h-screen" />
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.56, ease: easeOut }}
-        >
-          <EducationSection reveal={true} className="min-h-screen" />
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.56, ease: easeOut }}
+            >
+              <EducationSection reveal={true} className="min-h-screen" />
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.56, ease: easeOut }}
-        >
-          <PersonalProjectsSection reveal={true} className="min-h-screen" />
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.56, ease: easeOut }}
+            >
+              <PersonalProjectsSection reveal={true} className="min-h-screen" />
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.62, ease: easeOut }}
-        >
-          <WorkExperienceSection reveal={true} className="min-h-[120vh]" />
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.62, ease: easeOut }}
+            >
+              <WorkExperienceSection reveal={true} className="min-h-[120vh]" />
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 26 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.58, ease: easeOut }}
-        >
-          <FooterSection reveal={true} socials={socials} className="min-h-[90vh]" />
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 26 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.58, ease: easeOut }}
+            >
+              <FooterSection reveal={true} socials={socials} className="min-h-[90vh]" />
+            </motion.div>
+          </>
+        ) : (
+          <div className="space-y-4 px-5 pb-10 sm:px-6">
+            <div className="h-24 rounded-2xl border-[0.5px] border-white/10 bg-surface/60" />
+            <div className="h-24 rounded-2xl border-[0.5px] border-white/10 bg-surface/50" />
+            <div className="h-24 rounded-2xl border-[0.5px] border-white/10 bg-surface/40" />
+          </div>
+        )}
       </div>
     </div>
   );

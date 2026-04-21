@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import { useState } from "react";
 
 type EducationSectionProps = {
@@ -158,9 +159,11 @@ export function EducationSection({ reveal, className, contentClassName }: Educat
                           transition={{ duration: 0.35, ease: easeOut }}
                           className="relative aspect-[21/9] w-full"
                         >
-                          <img
+                          <Image
                             src={item.image}
                             alt={item.schoolName}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 50vw"
                             className="absolute inset-0 h-full w-full object-cover grayscale opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100"
                           />
                           {/* Gradient to make text readable */}
