@@ -82,29 +82,23 @@ function DialRing({
 }
 
 export function DialClock({ className, edgeOffset = true }: DialClockProps) {
-  // // Initialize to a deterministic value to avoid SSR/CSR hydration mismatches.
-  // const [nowMs, setNowMs] = useState<number>(() => 0);
-
-  // useEffect(() => {
-  //   // Start the update loop after mount. The first update will occur
-  //   // when the interval callback fires to avoid synchronous setState in effect.
-  //   const timerId = window.setInterval(() => {
-  //     setNowMs(Date.now());
-  //   }, 40);
-
-  //   return () => {
-  //     window.clearInterval(timerId);
-  //   };
-  // }, []);
 
   const [nowMs, setNowMs] = useState<number>(0);
 
   useEffect(() => {
-    const timerId = window.setInterval(() => {
-      setNowMs(Date.now());
-    }, 40);
+    let animationFrameId: number;
 
-    return () => window.clearInterval(timerId);
+    const updateClock = () => {
+      setNowMs(Date.now());
+      // Schedule the next update ONLY when the browser is ready to paint a frame
+      animationFrameId = requestAnimationFrame(updateClock);
+    };
+
+    // Start the loop
+    animationFrameId = requestAnimationFrame(updateClock);
+
+    // Cleanup
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   const { secondRotation, minuteRotation, hourRotation } = useMemo(() => {

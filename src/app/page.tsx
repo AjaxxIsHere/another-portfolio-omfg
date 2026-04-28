@@ -32,7 +32,7 @@ export default function Home() {
     <HeroShell
       name="Mohamad Ajaz Imran"
       // about="🇵🇭 Filipino | Aspiring Software Engineer & Mobile app Developer | Results Driven | Competitive Gamer | 🐱 Cats "
-      about="Filipino Engineer and result-driven innovator, blending high-end aesthetics with complex code for the love of gaming, cats, and the perfect build."
+      about="Aspiring software Engineer and result-driven developer, blending high-end aesthetics with complex code for the love of gaming, cats, and the perfect build."
       stack={techStack}
       socials={socials}
       milestones={milestones}

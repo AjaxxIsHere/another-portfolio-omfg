@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 const DIAMOND_BG = "#121212";
 // Accent color: #FA5D19
-const DIAMOND_INK_RGB = [36 / 255, 36 / 255, 36 / 255] as const;
+const DIAMOND_INK_RGB = [40 / 255, 40 / 255, 40 / 255] as const;
 const SHAPE_DIAMOND = 3;
 const MAX_CLICKS = 10;
 

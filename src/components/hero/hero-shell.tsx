@@ -1,14 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   AnimatePresence,
   motion,
   useScroll,
   useTransform,
 } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react"; // Added useState for the Magnetic logic
+import type { ReactNode } from "react";
+import Link from "next/link";
 import { useHeroCamera } from "@/components/hero/use-hero-camera";
-import { DialClock } from "@/components/hero/dial-clock";
 import {
   MilestonesSection,
   type MilestoneStat,
@@ -20,7 +22,17 @@ import { WorkExperienceSection } from "@/components/hero/work-experience-section
 import { FooterSection } from "@/components/hero/footer-section";
 import { AboutSection } from "@/components/hero/about-section";
 import { GlitchText } from "@/components/portfolio/glitch-text";
-import { HalftoneBlobsBackground } from "../portfolio/halftone-lava-lamp";
+
+// DYNAMIC IMPORTS: Deferring heavy graphics until after first paint
+const DialClock = dynamic(
+  () => import("@/components/hero/dial-clock").then((mod) => mod.DialClock),
+  { ssr: false } 
+);
+
+const HalftoneBlobsBackground = dynamic(
+  () => import("../portfolio/halftone-lava-lamp").then((mod) => mod.HalftoneBlobsBackground),
+  { ssr: false } 
+);
 
 type SocialIcon = "github" | "linkedin" | "email" | "website";
 
@@ -29,6 +41,38 @@ type SocialLink = {
   href: string;
   icon: SocialIcon;
 };
+
+// --- NEW: MAGNETIC WRAPPER (REUSABLE) ---
+function MagneticWrapper({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouse = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { clientX, clientY } = e;
+    const boundingRect = ref.current?.getBoundingClientRect();
+    if (boundingRect) {
+      const { height, width, left, top } = boundingRect;
+      const middleX = clientX - (left + width / 2);
+      const middleY = clientY - (top + height / 2);
+      setPosition({ x: middleX * 0.35, y: middleY * 0.35 });
+    }
+  };
+
+  const reset = () => setPosition({ x: 0, y: 0 });
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+      className="inline-flex"
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 type HeroShellProps = {
   name: string;
@@ -46,26 +90,10 @@ const defaultSocials: SocialLink[] = [
 ];
 
 const defaultMilestones: MilestoneStat[] = [
-  {
-    label: "Age",
-    value: "--",
-    note: "Placeholder value",
-  },
-  {
-    label: "Years Coding",
-    value: "--",
-    note: "Placeholder value",
-  },
-  {
-    label: "Projects Completed",
-    value: "--",
-    note: "Placeholder value",
-  },
-  {
-    label: "Projects Deployed",
-    value: "--",
-    note: "Placeholder value",
-  },
+  { label: "Age", value: "--", note: "Placeholder value" },
+  { label: "Years Coding", value: "--", note: "Placeholder value" },
+  { label: "Projects Completed", value: "--", note: "Placeholder value" },
+  { label: "Projects Deployed", value: "--", note: "Placeholder value" },
 ];
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -79,19 +107,28 @@ const riseIn = {
   },
 };
 
+function DownloadGlyph() {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="1.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className="h-4 w-4"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+  );
+}
 function SocialGlyph({ icon }: { icon: SocialIcon }) {
   if (icon === "github") {
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-5 w-5 text-neutral-400 transition-colors duration-200 hover:text-[#FA5D19]"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 transition-colors duration-200">
         <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
         <path d="M9 18c-4.51 2-5-2-7-2" />
       </svg>
@@ -100,20 +137,7 @@ function SocialGlyph({ icon }: { icon: SocialIcon }) {
 
   if (icon === "linkedin") {
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="20"
-        height="20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        role="img"
-        aria-labelledby="linkedin-title"
-      >
-        <title id="linkedin-title">LinkedIn Profile</title>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
         <rect width="4" height="12" x="2" y="9" />
         <circle cx="4" cy="4" r="2" />
@@ -123,20 +147,7 @@ function SocialGlyph({ icon }: { icon: SocialIcon }) {
 
   if (icon === "email") {
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="20"
-        height="20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        role="img"
-        aria-labelledby="email-title"
-      >
-        <title id="email-title">Send an Email</title>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect width="20" height="16" x="2" y="4" rx="2" />
         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
       </svg>
@@ -144,20 +155,7 @@ function SocialGlyph({ icon }: { icon: SocialIcon }) {
   }
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      role="img"
-      aria-labelledby="website-title"
-    >
-      <title id="website-title">Instagram</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -172,7 +170,6 @@ type HeroTextBlockProps = {
   socials: SocialLink[];
   className?: string;
 };
-
 function HeroTextBlock({
   name,
   about,
@@ -183,72 +180,73 @@ function HeroTextBlock({
   return (
     <motion.section
       variants={riseIn}
-      className={
-        className ?? "relative z-10 mx-auto w-full max-w-2xl lg:mx-0"
-      }
+      className={className ?? "relative z-10 mx-auto w-full max-w-2xl lg:mx-0"}
     >
-      <motion.p
-        variants={riseIn}
-        className="text-xs uppercase tracking-[0.3em] text-white/58"
-      >
+      <motion.p variants={riseIn} className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FA5D19]">
         Web Developer | Software Engineer
       </motion.p>
 
-      <motion.h1
-        variants={riseIn}
-        className="mt-4 max-w-[13ch] text-balance font-display text-[clamp(2.4rem,11vw,8.6rem)] leading-[1.02] tracking-[-0.03em] text-foreground sm:max-w-[14ch]"
-      >
+      <motion.h1 variants={riseIn} className="mt-4 max-w-[13ch] text-balance font-display text-[clamp(2.4rem,11vw,8.6rem)] leading-[1.02] tracking-[-0.03em] text-foreground sm:max-w-[14ch]">
         <GlitchText text={name} />
       </motion.h1>
 
-      <motion.p
-        variants={riseIn}
-        className="mt-5 max-w-xl text-base leading-relaxed text-white/74 sm:text-lg"
-      >
+      <motion.p variants={riseIn} className="mt-8 max-w-xl text-base leading-relaxed text-zinc-300 sm:text-lg">
         {about}
       </motion.p>
 
+      {/* Tech Stack Chips */}
       <motion.div variants={riseIn} className="mt-9 flex flex-wrap gap-2.5">
         {stack.map((item, index) => (
           <motion.span
             key={item}
-            className="rounded-full border-[0.5px] border-white/10 bg-surface/70 px-3 py-1.5 text-sm text-white/78 backdrop-blur-sm transition-colors duration-150 hover:bg-accent/10 hover:text-accent active:bg-accent/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/30 select-none"
+            className="rounded-full border-[0.5px] border-white/10 bg-white/[0.05] px-4 py-1.5 text-sm text-zinc-300 backdrop-blur-md transition-colors hover:bg-[#FA5D19]/10 hover:text-[#FA5D19] select-none"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.35 + index * 0.04,
-              duration: 0.45,
-              ease: easeOut,
-            }}
+            transition={{ delay: 0.35 + index * 0.04, duration: 0.45, ease: easeOut }}
           >
             {item}
           </motion.span>
         ))}
       </motion.div>
 
-      <motion.div
-        variants={riseIn}
-        className="mt-10 flex flex-wrap items-center gap-3"
-      >
-        {socials.map((social, index) => {
-          return (
-            <motion.a
-              key={social.label}
-              href={social.href}
-              aria-label={social.label}
-              className="group inline-flex h-11 w-11 items-center justify-center rounded-full border-[0.5px] border-white/12 bg-surface/65 text-white/70 transition-colors hover:border-accent/70 hover:text-accent"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: 0.45 + index * 0.06,
-                duration: 0.45,
-                ease: easeOut,
-              }}
-            >
-              <SocialGlyph icon={social.icon} />
-            </motion.a>
-          );
-        })}
+      <motion.div variants={riseIn} className="mt-12 flex flex-wrap items-center gap-4 sm:gap-8">
+        
+        {/* MAGNETIC DOWNLOAD CV */}
+        <MagneticWrapper>
+          <motion.a
+            href="/AjazCV2026.pdf" 
+            download="Mohamad_Ajaz_CV.pdf"
+            className="group flex h-12 items-center justify-center gap-3 rounded-full border-[0.5px] border-white/12 bg-white/[0.05] px-8 text-sm font-bold tracking-wide text-zinc-100 backdrop-blur-lg transition-all hover:border-[#FA5D19]/50 hover:text-[#FA5D19]"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.45, ease: easeOut }}
+          >
+            <span>Download CV</span>
+            <DownloadGlyph />
+          </motion.a>
+        </MagneticWrapper>
+
+        <motion.div className="hidden h-8 w-[1px] bg-white/10 sm:block" initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
+
+        {/* MAGNETIC SOCIAL LINKS */}
+        <div className="flex flex-wrap items-center gap-4">
+          {socials.map((social, index) => (
+            <MagneticWrapper key={social.label}>
+              <motion.a
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                className="group flex h-12 w-12 items-center justify-center rounded-full border-[0.5px] border-white/12 bg-white/[0.05] text-zinc-400 backdrop-blur-lg transition-all hover:border-[#FA5D19]/50 hover:text-[#FA5D19]"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.06, duration: 0.45, ease: easeOut }}
+              >
+                <SocialGlyph icon={social.icon} />
+              </motion.a>
+            </MagneticWrapper>
+          ))}
+        </div>
       </motion.div>
     </motion.section>
   );
@@ -264,18 +262,14 @@ export function HeroShell({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { cameraState } = useHeroCamera(scrollContainerRef);
 
-  // Track the native scrollbar inside the container
   const { scrollY, scrollYProgress } = useScroll({ container: scrollContainerRef });
 
-  // Map the native scroll position to the Clock's Y position and Opacity
-  // When scroll reaches 800px, the clock is pushed entirely off screen natively!
   const clockY = useTransform(scrollY, [0, 800], ["-50%", "-150%"]);
   const clockOpacity = useTransform(scrollY, [0, 600], [1, 0]);
 
-  // Rail progress and section thresholds
   const railProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const sections = ["LeetCode", "Education", "Projects", "Work", "Footer"] as const;
-  // explicit per-dot transforms (avoid calling hooks inside callbacks to satisfy lint rules)
+  
   const t0 = 0;
   const t1 = 1 / 4;
   const t2 = 2 / 4;
@@ -297,14 +291,11 @@ export function HeroShell({
   const dotScales = [dotScale0, dotScale1, dotScale2, dotScale3, dotScale4];
   const dotOpacities = [dotOpacity0, dotOpacity1, dotOpacity2, dotOpacity3, dotOpacity4];
 
-  // camera hook handles wheel + snapping logic
-
   return (
     <div className="relative isolate min-h-screen overflow-hidden bg-background md:h-screen">
       <HalftoneBlobsBackground />
 
       <div className="relative z-10 hidden md:block">
-        {/* Sticky progress rail (desktop only) - moved outside the transformed container so it stays fixed to viewport */}
         <motion.div className="pointer-events-none fixed left-6 top-1/2 z-30 -translate-y-1/2 hidden md:flex items-center">
           <div className="relative h-[60vh] w-1 rounded-full bg-white/6 overflow-hidden">
             <motion.div
@@ -329,16 +320,13 @@ export function HeroShell({
           animate={{ x: cameraState === "hero" ? "0vw" : "-100vw" }}
           transition={{ duration: 0.78, ease: easeOut }}
         >
-          {/* PANEL 1: HERO */}
           <section className="relative h-screen w-screen">
             <motion.main className="relative mx-auto grid h-full w-full max-w-[1440px] items-center gap-10 px-10 py-16 lg:grid-cols-[minmax(0,1fr)_minmax(420px,560px)] lg:px-14">
               <HeroTextBlock name={name} about={about} stack={stack} socials={socials} />
             </motion.main>
           </section>
 
-          {/* PANEL 2: THE DECK */}
           <section className="relative h-screen w-screen overflow-hidden">
-            {/* SLIDESHOW SECTIONS */}
             <AnimatePresence mode="wait">
               {cameraState === "about" && (
                 <motion.div
@@ -365,11 +353,8 @@ export function HeroShell({
                   <MilestonesSection stats={milestones} reveal={true} contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
                 </motion.div>
               )}
-
-              {/* (LeetCode is handled in the native scroll container) */}
             </AnimatePresence>
 
-            {/* FREE VERTICAL SCROLL SECTION */}
             <motion.div
               ref={scrollContainerRef}
               className={`absolute inset-0 h-full w-full ${cameraState === "native-content" ? "pointer-events-auto overflow-y-auto" : "pointer-events-none overflow-hidden"}`}
@@ -380,22 +365,20 @@ export function HeroShell({
               }}
               transition={{ duration: 0.5, ease: easeOut }}
             >
-              {/* LEETCODE: Must stay min-h-screen to perfectly catch the slideshow crossfade */}
               <div className="min-h-screen">
                 <LeetCodeActivitySection reveal={cameraState === "native-content"} username="AjaxxIsHere" contentClassName="md:ml-auto md:max-w-[72vw] lg:max-w-[68vw] xl:max-w-[64vw]" />
               </div>
 
-              {/* ALL OTHER SECTIONS: Changed to h-auto to remove massive gaps! */}
               <div className="h-auto">
-                <EducationSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+                <EducationSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1320px]" />
               </div>
 
               <div className="h-auto">
-                <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+                <PersonalProjectsSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1320px]" />
               </div>
 
               <div className="h-auto">
-                <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1120px]" />
+                <WorkExperienceSection reveal={cameraState === "native-content"} contentClassName="mx-auto max-w-[1320px]" />
               </div>
 
               <div className="h-auto">
@@ -404,10 +387,7 @@ export function HeroShell({
             </motion.div>
           </section>
 
-          {/* STRADDLING CLOCK */}
-          {/* Because it's positioned at left: 100vw, it naturally straddles the two panels when the container shifts left! */}
           <motion.div
-            // Note: Framer Motion `y` controls vertical transform; remove the translate-y utility.
             className="pointer-events-none absolute left-[100vw] top-1/2 z-[12] -translate-x-[65%]"
             style={{ y: clockY, opacity: clockOpacity }}
           >
@@ -416,9 +396,10 @@ export function HeroShell({
         </motion.div>
       </div>
 
+      {/* MOBILE SECTION */}
       <div className="relative z-10 md:hidden">
         <motion.main
-          className="relative mx-auto grid min-h-screen w-full max-w-[1440px] gap-8 px-5 py-10 sm:px-6 sm:py-12"
+          className="relative mx-auto grid min-h-screen w-full max-w-[1440px] gap-2 px-5 py-10 sm:px-6 sm:py-12 mb-42"
           initial="hidden"
           animate="visible"
           variants={{
@@ -426,8 +407,8 @@ export function HeroShell({
             visible: {
               opacity: 1,
               transition: {
-                staggerChildren: 0.08,
-                delayChildren: 0.12,
+                staggerChildren: 0.04, 
+                delayChildren: 0.05,  
               },
             },
           }}
@@ -439,9 +420,8 @@ export function HeroShell({
             socials={socials}
           />
 
-          {/* Mobile: enlarged clock, higher, behind hero and faded to right */}
           <div
-            className="pointer-events-none absolute right-0 top-[58%] z-0 translate-x-[35%] scale-170"
+            className="pointer-events-none absolute right-0 top-[80%] z-0 translate-x-[35%] scale-170"
             style={{
               WebkitMaskImage: 'linear-gradient(to right, black 60%, transparent 100%)',
               maskImage: 'linear-gradient(to right, black 60%, transparent 100%)',
@@ -451,67 +431,89 @@ export function HeroShell({
           </div>
         </motion.main>
 
+        {/* EAGER REVEAL FIX: These sections now wait to trigger their animations until scrolled into view */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.48, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 24 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.48, ease: easeOut } }
+          }}
         >
-          <AboutSection reveal={true} className="min-h-screen" />
+          <AboutSection reveal={true} className="min-h-[85vh]" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.5, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 24 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOut } }
+          }}
         >
-          <MilestonesSection stats={milestones} reveal={true} className="min-h-screen" />
+          <MilestonesSection stats={milestones} reveal={true} className="min-h-[85vh]" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.56, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 28 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.56, ease: easeOut } }
+          }}
         >
-          <LeetCodeActivitySection reveal={true} username={"AjaxxIsHere"} className="min-h-screen" />
+          <LeetCodeActivitySection reveal={true} username={"AjaxxIsHere"} className="min-h-[85vh]" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.56, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 28 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.56, ease: easeOut } }
+          }}
         >
-          <EducationSection reveal={true} className="min-h-screen" />
+          <EducationSection reveal={true} className="min-h-[85vh]" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.56, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 28 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.56, ease: easeOut } }
+          }}
         >
-          <PersonalProjectsSection reveal={true} className="min-h-screen" />
+          <PersonalProjectsSection reveal={true} className="min-h-[85vh]" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.62, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 30 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.62, ease: easeOut } }
+          }}
         >
-          <WorkExperienceSection reveal={true} className="min-h-[120vh]" />
+          <WorkExperienceSection reveal={true} className="min-h-[85vh]" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 26 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.58, ease: easeOut }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0, y: 26 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.58, ease: easeOut } }
+          }}
         >
-          <FooterSection reveal={true} socials={socials} className="min-h-[90vh]" />
+          <FooterSection reveal={true} socials={socials} className="min-h-[85vh]" />
         </motion.div>
       </div>
     </div>

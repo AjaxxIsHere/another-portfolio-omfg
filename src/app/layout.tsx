@@ -16,7 +16,7 @@ const displayFont = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "Mistyspace",
+    default: "Mohamad Ajaz @ Mistyspace",
     template: "%s | Mistyspace",
   },
   description: "Software engineering portfolio",
