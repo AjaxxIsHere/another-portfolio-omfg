@@ -7,7 +7,7 @@ import { Redis } from "@upstash/redis";
 // 3 requests per 24 hours per IP
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.fixedWindow(3, "24 h"),
+  limiter: Ratelimit.fixedWindow(100, "24 h"),
   ephemeralCache: new Map(),
 });
 

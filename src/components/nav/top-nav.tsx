@@ -101,7 +101,7 @@ export default function TopNav() {
                   </div>
 
                   <div className="hidden sm:flex items-center gap-3">
-                    <span className="text-xs text-white/58">Mistyspace</span>
+                    <span className="text-xs text-white/58">Mohamad Ajaz</span>
                   </div>
                 </div>
               </div>

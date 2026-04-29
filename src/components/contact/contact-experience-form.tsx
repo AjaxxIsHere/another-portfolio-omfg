@@ -173,14 +173,23 @@ export function ContactExperienceForm() {
     setIsSubmitted(false);
     setIsSending(true);
 
+    // Print: Checking if reCAPTCHA engine is ready
+    console.log("--- Starting Form Submission ---");
+
     if (!executeRecaptcha) {
+      console.error("reCAPTCHA Error: executeRecaptcha is not available yet.");
       setErrorMsg("reCAPTCHA is not fully loaded. Please try again later.");
       setIsSending(false);
       return;
     }
 
     try {
+      // Print: Attempting to get a token from Google
+      console.log("reCAPTCHA: Requesting token from Google...");
       const recaptchaToken = await executeRecaptcha("contact_form");
+      
+      // Print: Successfully received token (first 20 chars for security)
+      console.log("reCAPTCHA: Token received successfully:", recaptchaToken.substring(0, 20) + "...");
 
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -188,15 +197,20 @@ export function ContactExperienceForm() {
         body: JSON.stringify({ ...formData, recaptchaToken }),
       });
 
+      console.log("Backend: Request sent to /api/contact. Status:", res.status);
+
       const responseData = await res.json();
 
       if (!res.ok) {
+        console.error("Backend Error Response:", responseData);
         throw new Error(responseData.error || "Failed to send message.");
       }
 
+      console.log("Success: Message accepted by backend and n8n handoff complete.");
       setFormData(initialFormState);
       setIsSubmitted(true);
     } catch (err: unknown) {
+      console.error("Submission Catch Block:", err);
       if (err instanceof Error) {
         setErrorMsg(err.message);
       } else {
@@ -204,11 +218,12 @@ export function ContactExperienceForm() {
       }
     } finally {
       setIsSending(false);
+      console.log("--- End of Submission Process ---");
     }
   };
 
   return (
-    <main className="relative isolate min-h-screen overflow-hidden bg-background px-5 pb-10 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+    <main className="relative isolate min-h-screen overflow-hidden bg-background px-5 pb-10 pt-28 sm:px-8 lg:px-12 lg:pt-24">
       <HalftoneBlobsBackground />
 
       <div className="relative z-10 mx-auto w-full max-w-[1320px]">
@@ -235,7 +250,7 @@ export function ContactExperienceForm() {
             <p className="mt-6 max-w-[42ch] text-sm leading-relaxed text-white/72 sm:text-base">
               I&apos;m open to impactful software engineering roles across frontend, mobile,
               and full-stack product teams. Share your role details and I&apos;ll get back to
-              you quickly.
+              you quickly!
             </p>
 
             <div className="mt-8 grid gap-3 text-sm text-white/68 sm:grid-cols-2">
@@ -249,7 +264,7 @@ export function ContactExperienceForm() {
                 <p className="text-[0.65rem] uppercase tracking-[0.22em] text-accent/85">
                   Start Window
                 </p>
-                <p className="mt-2 text-base text-white/84">Immediate to 2 Weeks</p>
+                <p className="mt-2 text-base text-white/84">Immediate to 7 days</p>
               </div>
             </div>
 
@@ -277,7 +292,7 @@ export function ContactExperienceForm() {
                     setFormData((previous) => ({ ...previous, fullName: event.target.value }))
                   }
                   className={fieldClassName}
-                  placeholder="Mohamad Ajaz"
+                  placeholder="Joe Smoe"
                   autoComplete="name"
                 />
               </label>
@@ -395,7 +410,7 @@ export function ContactExperienceForm() {
               transition={{ duration: 0.3, ease: easeOut }}
               className="overflow-hidden pt-4 text-sm text-accent"
             >
-              Thanks. Your message has been sent successfully. I'll get back to you soon.
+              Thanks! Your message has been sent successfully. I'll get back to you soon.
             </motion.div>
           </motion.form>
         </motion.section>
