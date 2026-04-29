@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/nav/top-nav";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${displayFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SpeedInsights />
         <TopNav />
         {children}
       </body>
