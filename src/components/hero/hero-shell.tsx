@@ -21,7 +21,7 @@ import { PersonalProjectsSection } from "@/components/hero/personal-projects-sec
 import { WorkExperienceSection } from "@/components/hero/work-experience-section";
 import { FooterSection } from "@/components/hero/footer-section";
 import { AboutSection } from "@/components/hero/about-section";
-import { GlitchText } from "@/components/portfolio/glitch-text";
+import { ScrambleText } from "@/components/portfolio/glitch-text";
 
 // DYNAMIC IMPORTS: Deferring heavy graphics until after first paint
 const DialClock = dynamic(
@@ -187,7 +187,7 @@ function HeroTextBlock({
       </motion.p>
 
       <motion.h1 variants={riseIn} className="mt-4 max-w-[13ch] text-balance font-display text-[clamp(2.4rem,11vw,8.6rem)] leading-[1.02] tracking-[-0.03em] text-foreground sm:max-w-[14ch]">
-        <GlitchText text={name} />
+        <ScrambleText text={name} />
       </motion.h1>
 
       <motion.p variants={riseIn} className="mt-8 max-w-xl text-base leading-relaxed text-zinc-300 sm:text-lg">

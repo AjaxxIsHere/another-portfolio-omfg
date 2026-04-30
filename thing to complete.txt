@@ -1,0 +1,11 @@
+Things to complete:
+
+1) Glitch text Implementation fix on the hero page // DONE
+2) Change the work achievements text 
+3) Implement better easter egg
+4) fix clock scaling issue on mobile
+5) implement privacy policy into site
+6) Make each section available to scroll to using top nav bar.
+7) Implement quick loading page before website loads
+8) Implement email authentication to prevent misuse
+9) 

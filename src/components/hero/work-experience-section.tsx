@@ -31,7 +31,7 @@ const defaultExperiences: ExperienceItem[] = [
       "Optimized the front-end architecture for the social Q&A platform (Blinkr), implementing a grid-based UI layout that improved content discoverability and reduced app load times by streamlining asset delivery.",
     achievements: [
       "Engineered a scalable state management solution reducing unnecessary widget rebuilds by 40%.",
-      "Integrated complex RESTful APIs ensuring seamless real-time data synchronization.",
+      "Integrated RESTful APIs ensuring seamless real-time data synchronization.",
       "Collaborated with UI/UX designers to translate Figma prototypes into pixel-perfect interactive screens."
     ],
   },
